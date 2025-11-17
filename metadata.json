@@ -1,0 +1,5 @@
+
+{
+  "name": "LLMCOM Prompt Generator",
+  "description": "A web tool to convert plain English prompts into optimized, token-efficient LLMCOM format using AI. Features real-time token counting, compression ratio display, and cost savings calculation."
+}
