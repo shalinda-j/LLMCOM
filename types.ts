@@ -1,5 +1,4 @@
-
-export type Domain = 'image_generation' | 'llm_dev' | 'code_generation' | 'research' | 'support' | 'auto';
+export type Domain = 'image_generation' | 'llm_dev' | 'code_generation' | 'claude_code' | 'research' | 'support' | 'auto';
 
 export interface IToken {
   token: string;

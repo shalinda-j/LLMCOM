@@ -1,7 +1,6 @@
-import type { Domain } from '../types';
+﻿import type { Domain } from '../types';
 
 function extractTokensByCategory(tokens: string[], category: string): string {
-  // Simple heuristic to find relevant tokens for each category
   const categoryKeywords: Record<string, string[]> = {
     style: ['cinematic', 'editorial', 'artistic', 'professional', 'casual', 'vintage'],
     subject: ['woman', 'man', 'person', 'character', 'portrait', 'figure'],
@@ -14,7 +13,11 @@ function extractTokensByCategory(tokens: string[], category: string): string {
     task: ['implement', 'create', 'build', 'develop', 'design', 'optimize'],
     requirements: ['fast', 'secure', 'scalable', 'maintainable', 'efficient'],
     role: ['assistant', 'analyst', 'expert', 'advisor', 'consultant'],
-    output: ['report', 'summary', 'analysis', 'recommendations', 'insights']
+    output: ['report', 'summary', 'analysis', 'recommendations', 'insights'],
+    claude_task: ['refactor', 'review', 'fix', 'debug', 'test', 'implement', 'optimize'],
+    claude_scope: ['file', 'module', 'component', 'function', 'class', 'project'],
+    claude_focus: ['security', 'performance', 'coverage', 'lint', 'types', 'clean'],
+    claude_action: ['commit', 'pr', 'deploy', 'build', 'merge', 'audit']
   };
 
   const keywords = categoryKeywords[category] || [];
@@ -33,7 +36,6 @@ function extractTokensByCategory(tokens: string[], category: string): string {
 export function APPLY_TEMPLATE(tokens: string[], domain: Domain): string {
   
   if (domain === 'image_generation') {
-    // Extract components for image generation
     const style = extractTokensByCategory(tokens, 'style');
     const subject = extractTokensByCategory(tokens, 'subject');
     const pose = extractTokensByCategory(tokens, 'pose');
@@ -55,7 +57,18 @@ export function APPLY_TEMPLATE(tokens: string[], domain: Domain): string {
     const optimization = tokens.find(t => t.includes('optim') || t.includes('perform')) || 'standard';
     const documentation = tokens.find(t => t.includes('doc') || t.includes('comment')) || 'docstring';
     
-    return `code[${lang}]|${task}|${requirements}|${edgeCases}|${optimization}|${documentation}`;
+    return 'code[' + lang + ']|' + task + '|' + requirements + '|' + edgeCases + '|' + optimization + '|' + documentation;
+  }
+  
+  else if (domain === 'claude_code') {
+    const task = extractTokensByCategory(tokens, 'claude_task');
+    const scope = extractTokensByCategory(tokens, 'claude_scope');
+    const focus = extractTokensByCategory(tokens, 'claude_focus');
+    const action = extractTokensByCategory(tokens, 'claude_action');
+    const context = tokens.find(t => t.includes('file') || t.includes('@')) || '@src';
+    const constraints = tokens.find(t => t.includes('limit') || t.includes('constrain')) || 'none';
+    
+    return 'agent[' + task + ']|' + scope + '|' + focus + '|' + action + '|' + context + '|' + constraints;
   }
   
   else if (domain === 'llm_dev') {
@@ -64,7 +77,7 @@ export function APPLY_TEMPLATE(tokens: string[], domain: Domain): string {
     const output = extractTokensByCategory(tokens, 'output');
     const constraints = tokens.find(t => t.includes('limit') || t.includes('constrain')) || 'none';
     
-    return `role:${role}|task:${task}|output:${output}|constraints:${constraints}`;
+    return 'role:' + role + '|task:' + task + '|output:' + output + '|constraints:' + constraints;
   }
   
   else if (domain === 'research') {
@@ -73,7 +86,7 @@ export function APPLY_TEMPLATE(tokens: string[], domain: Domain): string {
     const scope = tokens.find(t => t.includes('scope') || t.includes('range')) || 'comprehensive';
     const deliverable = extractTokensByCategory(tokens, 'output');
     
-    return `research[${methodology}]|${focus}|${scope}|${deliverable}`;
+    return 'research[' + methodology + ']|' + focus + '|' + scope + '|' + deliverable;
   }
   
   else if (domain === 'support') {
@@ -82,9 +95,8 @@ export function APPLY_TEMPLATE(tokens: string[], domain: Domain): string {
     const category = tokens.find(t => t.includes('technical') || t.includes('billing')) || 'general';
     const resolution = tokens.find(t => t.includes('fix') || t.includes('resolve')) || 'assist';
     
-    return `support[${issueType}]|${priority}|${category}|${resolution}`;
+    return 'support[' + issueType + ']|' + priority + '|' + category + '|' + resolution;
   }
   
-  // Default: join with pipes
   return tokens.slice(0, 6).join('|');
 }

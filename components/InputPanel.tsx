@@ -1,4 +1,3 @@
-
 import React from 'react';
 import type { Domain } from '../types';
 import { Card } from './ui/Card';
@@ -33,7 +32,7 @@ export const InputPanel: React.FC<InputPanelProps> = ({
   return (
     <Card>
       <div className="p-6">
-        <h2 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">📝 Input (Plain English)</h2>
+        <h2 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">Input (Plain English)</h2>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Select
@@ -42,6 +41,7 @@ export const InputPanel: React.FC<InputPanelProps> = ({
             onChange={(e) => setSelectedDomain(e.target.value as Domain)}
             options={[
               { value: 'auto', label: 'Auto-Detect' },
+              { value: 'claude_code', label: 'Claude Code / Cursor CLI' },
               { value: 'image_generation', label: 'Image Generation' },
               { value: 'llm_dev', label: 'AI/LLM Development' },
               { value: 'code_generation', label: 'Code Generation' },

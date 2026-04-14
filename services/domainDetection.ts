@@ -1,6 +1,5 @@
-import type { Domain } from '../types';
+﻿import type { Domain } from '../types';
 
-// Domain-specific keyword configurations
 export const DOMAIN_KEYWORDS = {
   image_generation: [
     'portrait', 'photo', 'cinematic', 'camera', 'lighting', 'lens',
@@ -14,6 +13,13 @@ export const DOMAIN_KEYWORDS = {
     'variable', 'return', 'loop', 'array', 'parameter', 'algorithm',
     'class', 'method', 'debug', 'optimize', 'api', 'framework',
     'library', 'module', 'import', 'export', 'async', 'await'
+  ],
+  claude_code: [
+    'claude', 'cursor', 'agent', 'refactor', 'review', 'commit',
+    'branch', 'merge', 'test', 'coverage', 'lint', 'fix', 'bug',
+    'feature', 'pr', 'pull', 'request', 'workflow', 'ci', 'cd',
+    'deploy', 'build', 'security', 'audit', 'performance', 'optimize',
+    'rule', 'compress', 'context', 'mcp', 'slash'
   ],
   llm_dev: [
     'analyze', 'summarize', 'explain', 'understand', 'extract',
@@ -35,42 +41,30 @@ export const DOMAIN_KEYWORDS = {
 };
 
 function getKeywordSpecificity(keyword: string): number {
-  // Longer, more specific keywords get higher scores
   const baseScore = Math.log(keyword.length + 1);
-  
-  // Technical terms get bonus points
-  const technicalTerms = ['cinematic', 'algorithm', 'methodology', 'troubleshoot'];
+  const technicalTerms = ['cinematic', 'algorithm', 'methodology', 'troubleshoot', 'claude', 'cursor', 'refactor'];
   const technicalBonus = technicalTerms.includes(keyword) ? 0.5 : 0;
-  
   return baseScore + technicalBonus;
 }
 
 export function DETECT_DOMAIN(text: string): Domain {
   const textLower = text.toLowerCase();
-  
   const domainScores: Record<string, number> = {};
   
-  // Calculate match scores for each domain
   for (const [domain, keywords] of Object.entries(DOMAIN_KEYWORDS)) {
     let score = 0;
     let matches = 0;
-    
     for (const keyword of keywords) {
       if (textLower.includes(keyword)) {
         matches++;
-        const specificity = getKeywordSpecificity(keyword);
-        score += specificity;
+        score += getKeywordSpecificity(keyword);
       }
     }
-    
-    // Average score weighted by match count
     domainScores[domain] = matches > 0 ? (score / keywords.length) * Math.log(matches + 1) : 0;
   }
   
-  // Find domain with highest score
   let bestDomain: Domain = 'llm_dev';
   let bestScore = 0;
-  
   for (const [domain, score] of Object.entries(domainScores)) {
     if (score > bestScore) {
       bestScore = score;
@@ -78,6 +72,5 @@ export function DETECT_DOMAIN(text: string): Domain {
     }
   }
   
-  // If confidence too low, default to LLM development
   return bestScore < 0.3 ? 'llm_dev' : bestDomain;
 }
